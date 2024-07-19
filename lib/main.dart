@@ -1,12 +1,17 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_application_1/auth_service.dart';
 import 'package:flutter_application_1/database/db.dart';
 import 'package:flutter_application_1/index.dart';
+import 'package:flutter_application_1/registration.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -21,16 +26,14 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState () => _MyHomePageState();
@@ -44,8 +47,17 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController txtpassword=TextEditingController();
 
   void check_password() async{
-    var abc=await databasehelper.getData();
-    if(txtusername.text==abc[0]["username"] && txtpassword.text==abc[0]["password"]){
+    //__this code is for sqflite checking
+    // var abc=await databasehelper.getData();
+    // if(txtusername.text==abc[0]["username"] && txtpassword.text==abc[0]["password"]){
+    //   ScaffoldMessenger.of(this.context).showSnackBar(const SnackBar(content: Text("Login Sucessfully!!!")));
+    //   Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext content)=>Home()));
+    // }
+    // else{
+    //         ScaffoldMessenger.of(this.context).showSnackBar(const SnackBar(content: Text("Login failed!!!")));
+    // }
+    final message= await AuthService().Login(email: txtusername.text, password: txtpassword.text);
+    if(message=="Success"){
       ScaffoldMessenger.of(this.context).showSnackBar(const SnackBar(content: Text("Login Sucessfully!!!")));
       Navigator.pushReplacement(this.context, MaterialPageRoute(builder: (BuildContext content)=>Home()));
     }
@@ -118,7 +130,9 @@ class _MyHomePageState extends State<MyHomePage> {
                             )
 
                           ),
-                      )
+                      ),
+
+                      InkWell(child: Text("Registration..?",style: TextStyle(color: Colors.lightBlue),), onTap: (){Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext content)=>Registration()));},)
 
                   ],),
                 ),
